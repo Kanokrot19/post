@@ -119,15 +119,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "description": "swagger:order 3",
                     "type": "string"
                 },
                 "id": {
-                    "description": "swagger:order 1",
                     "type": "integer"
                 },
                 "name": {
-                    "description": "swagger:order 2",
                     "type": "string"
                 }
             }

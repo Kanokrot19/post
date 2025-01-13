@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,15 +21,15 @@ type ErrorResponse struct {
 
 // CreateUserRequest โครงสร้างสำหรับคำขอ POST
 type CreateUserRequest struct {
-	Name  string `json:"name" binding:"required,name"`   // ฟิลด์ที่จำเป็น
+	Name  string `json:"name" binding:"required"`       // ฟิลด์ที่จำเป็น
 	Email string `json:"email" binding:"required,email"` // อีเมลต้องอยู่ในรูปแบบที่ถูกต้อง
 }
 
 // CreateUserResponse โครงสร้างสำหรับการตอบกลับ POST
 type CreateUserResponse struct {
-	ID    int    `json:"id"`    // swagger:order 1
-	Name  string `json:"name"`  // swagger:order 2
-	Email string `json:"email"` // swagger:order 3
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 // Mock database
@@ -44,8 +45,22 @@ var nextID = 1
 // @Failure      404  {object}  ErrorResponse
 // @Router       /users/{id} [get]
 func GetUserByID(c *gin.Context) {
-	id := c.Param("id")
-	c.JSON(200, gin.H{"id": id, "name": "ณัฐโชติ พรหมฤทธิ์"})
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ErrorResponse{Message: "Invalid ID format"})
+		return
+	}
+
+	// ค้นหาผู้ใช้ตาม ID
+	for _, user := range users {
+		if user.ID == id {
+			c.JSON(http.StatusOK, user)
+			return
+		}
+	}
+
+	c.JSON(http.StatusNotFound, ErrorResponse{Message: "User not found"})
 }
 
 // @Summary      Create a new user
@@ -77,7 +92,7 @@ func CreateUser(c *gin.Context) {
 	// สร้างผู้ใช้ใหม่
 	newUser := User{
 		ID:    nextID,
-		Name:  req.Name, // ลำดับ: name มาก่อน email
+		Name:  req.Name,
 		Email: req.Email,
 	}
 	nextID++ // เพิ่มค่า ID ถัดไป
@@ -86,7 +101,7 @@ func CreateUser(c *gin.Context) {
 	// ตอบกลับผู้ใช้ใหม่
 	c.JSON(http.StatusCreated, CreateUserResponse{
 		ID:    newUser.ID,
-		Name:  newUser.Name, // ลำดับ: name มาก่อน email
+		Name:  newUser.Name,
 		Email: newUser.Email,
 	})
 }
