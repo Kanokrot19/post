@@ -1,0 +1,101 @@
+basePath: /api/v1
+definitions:
+  handler.CreateUserRequest:
+    properties:
+      email:
+        description: อีเมลต้องอยู่ในรูปแบบที่ถูกต้อง
+        type: string
+      name:
+        description: ฟิลด์ที่จำเป็น
+        type: string
+    required:
+    - email
+    - name
+    type: object
+  handler.CreateUserResponse:
+    properties:
+      email:
+        description: swagger:order 3
+        type: string
+      id:
+        description: swagger:order 1
+        type: integer
+      name:
+        description: swagger:order 2
+        type: string
+    type: object
+  handler.ErrorResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  handler.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a simple example of using Gin with Swagger.
+  title: Simple API Example
+  version: "1.0"
+paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Add a new user to the system
+      parameters:
+      - description: User Information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.CreateUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Create a new user
+      tags:
+      - Users
+  /users/{id}:
+    get:
+      description: Get details of a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.User'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Get user by ID
+      tags:
+      - Users
+swagger: "2.0"
